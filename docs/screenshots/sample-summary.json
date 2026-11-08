@@ -1,0 +1,13 @@
+{
+  "event": {"id":"90330265-5bed-439f-894c-306bcb9b8cf2","name":"Design Patterns Conference","date":"2026-12-12","venue":"Astana · Main Hall","capacity":12,"unitPrice":5000.00},
+  "currency": "KZT",
+  "participants": [{"id":"0b15828b-1a6b-4c22-bfde-b965157b860f","name":"Aida"},
+    {"id":"98980931-7a80-464f-b88a-4ccb833ec58f","name":"Dana"},
+    {"id":"58e6bfc7-bad6-440d-ae41-5d85fd6742b0","name":"Student team"}],
+  "bookings": [{"id":"ebce9088-7d6c-4340-8b87-054ff18100db","eventId":"90330265-5bed-439f-894c-306bcb9b8cf2","participantId":"0b15828b-1a6b-4c22-bfde-b965157b860f","customerName":"Aida","seatCount":2,"unitPrice":5000.00,"pricingPlan":"REGULAR","status":"CONFIRMED","quotedPrice":10000.00},
+    {"id":"a4c726fe-c919-471a-ab2b-34de86ad94ac","eventId":"90330265-5bed-439f-894c-306bcb9b8cf2","participantId":"98980931-7a80-464f-b88a-4ccb833ec58f","customerName":"Dana","seatCount":1,"unitPrice":5000.00,"pricingPlan":"STUDENT","status":"CREATED","quotedPrice":4500.00},
+    {"id":"dc808131-7b53-492b-bf2f-98017b71aaa7","eventId":"90330265-5bed-439f-894c-306bcb9b8cf2","participantId":"58e6bfc7-bad6-440d-ae41-5d85fd6742b0","customerName":"Student team","seatCount":5,"unitPrice":5000.00,"pricingPlan":"GROUP","status":"CREATED","quotedPrice":21250.00}],
+  "reservedSeats": 8,
+  "availableSeats": 4,
+  "totalPrice": 35750.00
+}

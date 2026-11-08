@@ -1,0 +1,21 @@
+EVENT SUMMARY
+Event: Design Patterns Conference
+ID: 90330265-5bed-439f-894c-306bcb9b8cf2
+Date: 2026-12-12
+Venue: Astana · Main Hall
+Capacity: 12
+Unit price (KZT): 5000.00
+Reserved seats: 8
+Available seats: 4
+
+PARTICIPANTS
+0b15828b-1a6b-4c22-bfde-b965157b860f | Aida
+98980931-7a80-464f-b88a-4ccb833ec58f | Dana
+58e6bfc7-bad6-440d-ae41-5d85fd6742b0 | Student team
+
+BOOKINGS (cancelled bookings excluded from total)
+ebce9088-7d6c-4340-8b87-054ff18100db | Aida | seats: 2 | REGULAR | CONFIRMED | quoted price (KZT): 10000.00
+a4c726fe-c919-471a-ab2b-34de86ad94ac | Dana | seats: 1 | STUDENT | CREATED | quoted price (KZT): 4500.00
+dc808131-7b53-492b-bf2f-98017b71aaa7 | Student team | seats: 5 | GROUP | CREATED | quoted price (KZT): 21250.00
+
+TOTAL (KZT): 35750.00
