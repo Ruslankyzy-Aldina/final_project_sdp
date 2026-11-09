@@ -1,5 +1,6 @@
 package org.example.booking;
 
+import org.example.validation.ValidationException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
@@ -14,20 +15,20 @@ public record Booking(
 ) {
     public Booking {
         if (id == null || id.isBlank()) {
-            throw new IllegalArgumentException("Booking id is required");
+            throw new ValidationException("Booking id is required");
         }
         if (eventId == null || eventId.isBlank()) {
-            throw new IllegalArgumentException("Event id is required");
+            throw new ValidationException("Event id is required");
         }
         if (customerName == null || customerName.isBlank()) {
-            throw new IllegalArgumentException("Customer name is required");
+            throw new ValidationException("Customer name is required");
         }
         if (seatCount <= 0) {
-            throw new IllegalArgumentException("Seat count must be positive");
+            throw new ValidationException("Seat count must be positive");
         }
         Objects.requireNonNull(unitPrice, "unitPrice");
         if (unitPrice.signum() < 0) {
-            throw new IllegalArgumentException("Unit price cannot be negative");
+            throw new ValidationException("Unit price cannot be negative");
         }
         unitPrice = unitPrice.setScale(2, RoundingMode.HALF_UP);
         Objects.requireNonNull(status, "status");
