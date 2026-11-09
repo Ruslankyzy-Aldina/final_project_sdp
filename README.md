@@ -24,12 +24,17 @@ The runnable JAR contains the application; JUnit is a test dependency only.
 
 ## Using the interface
 
-1. **Events**: create an event with date, venue, positive capacity and nonnegative ticket price.
-2. **Participants**: register booking holders by name.
-3. Choose an event in the selector at the top of any page.
-4. **Bookings**: choose a participant, seat count and pricing plan. Use **Book seats**.
-5. Select a booking row, choose a status and use **Apply status**.
-6. **Summary**: review bookings and the total, select TXT/JSON/HTML and use **Export report…**.
+1. **Events**: the table lists all events. Fill the form and use **Create event**; select a row to load it,
+   change fields and use **Save changes**; **Delete event** asks for confirmation. Empty name/location,
+   a date in the past, capacity <= 0 and a negative price are rejected, and all messages are shown together.
+   Capacity cannot go below reserved seats; events with active bookings cannot be deleted.
+2. **Packages**: tick Catering (2500 KZT per guest), Photographer (30000) and Decor (15000) on top of the
+   20000 KZT base package. The total updates immediately; **Save package** stores it for the selected event.
+3. **Participants**: register booking holders by name.
+4. Choose an event in the selector at the top of any page.
+5. **Bookings**: choose a participant, seat count and pricing plan. Use **Book seats**.
+6. Select a booking row, choose a status and use **Apply status**.
+7. **Summary**: review bookings and the total, select TXT/JSON/HTML and use **Export report…**.
    Choose a destination; an existing report requires replacement confirmation. Errors use one shared dialog.
 
 All amounts are in KZT. A participant is the registered booking holder; a group booking can reserve
@@ -73,9 +78,16 @@ GUI -> EventFacade -> EventService / BookingService -> InMemoryEventStore
   The creator's `export` operation calls the overridden factory method. A test proves that a different
   creator implementation can replace exporter creation without changing that operation.
 - **Strategy (existing):** `RegularPricing`, `StudentDiscountPricing`, `GroupDiscountPricing` and
-  `PriceCalculator` are retained unchanged and called by the booking service.
+  `PriceCalculator` are called by the booking service.
+- **Builder:** `EventBuilder` (`name()`, `date()`, `location()`, `capacity()`, `price()`, `build()`) is the
+  only way to create an `Event`; `build()` validates all fields and throws one `ValidationException`.
+- **Decorator:** `BasePackage` wrapped by `CateringDecorator`, `PhotographerDecorator`, `DecorDecorator`
+  (all `OptionDecorator` subclasses of `ServiceOption`) gives the package description and cost.
 
-Packages: `booking`, `pricing` (existing), `model`, `storage`, `service`, `export`, `facade`, `sample`, `ui`.
+Class diagram of all patterns: [docs/uml/class-diagram.md](docs/uml/class-diagram.md).
+
+Packages: `booking`, `pricing` (existing), `model`, `option`, `validation`, `storage`, `service`, `export`,
+`facade`, `sample`, `ui`.
 `Summary` is an immutable snapshot. Capacity validation and saving occur within one store lock.
 Export writes a temporary UTF-8 file beside the destination and then replaces the destination,
 using an atomic move when supported by the filesystem.

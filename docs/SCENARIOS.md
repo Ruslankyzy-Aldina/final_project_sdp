@@ -43,6 +43,25 @@ Cancellation/reactivation and concurrent booking tests exercise the same service
 
 ![Capacity error component](screenshots/capacity-error.png)
 
+## Test scenarios: event model, Builder and Decorator (feature/model-builder)
+
+These test-scenario numbers are the test plan IDs from the task assignment. They are not the
+user-journey numbers in the table above. Actual results come from `mvn verify` (44 tests, 0 failures)
+and from the GUI captures in `screenshots/`.
+
+| ID | Input | Expected result | Actual result | Automated test |
+| --- | --- | --- | --- | --- |
+| S1 - main successful path | Events: create "Spring Gala", date in 30 days, "Main Hall", capacity 10, price 1000. Select it, change capacity to 12 and price to 1200, Save changes. Packages: tick Catering, Photographer, Decor, Save package. Add participant Aida, book 2 REGULAR seats | Event listed and editable with the same id; package total 20000 + 12 x 2500 + 30000 + 15000 = 95000.00 KZT; summary 2 reserved seats, total 2400.00 KZT | As expected | `EventScenarioTest.scenario1MainSuccessfulPath`, `EventListPageTest` |
+| S5 - empty event name | Events: name "   " (spaces only), other fields valid, Create event | Error dialog "Event name is required"; no event is added | As expected | `EventScenarioTest.scenario5EmptyEventNameIsRejected` |
+| S6 - zero/negative capacity or price | Capacity 0, capacity -5, price -1, and capacity 0 with price -1 | "Capacity must be greater than zero" and/or "Ticket price cannot be negative", all in one dialog; nothing saved. Price 0 is accepted (free event, e.g. Community Meetup) | As expected | `EventScenarioTest.scenario6*` (4 parameterized cases + free event) |
+
+Additional rule checks covered by `EventScenarioTest` and `EventBuilderTest`: a date in the past
+(on create and edit), lowering capacity below reserved seats, deleting an event with active
+bookings, non-numeric capacity/price or a malformed date (`FormInput`), and recalculating catering
+when capacity changes.
+
+![Validation error for S5/S6](screenshots/validation-error.png)
+
 ## Verification scope
 
 The Maven suite checks domain behavior, exporter creation, saved file contents, error paths,
