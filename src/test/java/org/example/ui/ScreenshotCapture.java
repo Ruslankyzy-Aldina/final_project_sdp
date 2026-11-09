@@ -20,7 +20,7 @@ public final class ScreenshotCapture {
         SwingUtilities.invokeAndWait(() -> {
             Theme.install();
             EventPanel panel = new EventPanel(facade);
-            for (String page : new String[]{"Events", "Participants", "Bookings", "Summary"}) {
+            for (String page : new String[]{"Events", "Packages", "Participants", "Bookings", "Summary"}) {
                 panel.showPage(page); render(panel, 1180, 740, destination.resolve(page.toLowerCase() + ".png"));
             }
             try {
@@ -29,6 +29,13 @@ public final class ScreenshotCapture {
             } catch (IllegalArgumentException expected) {
                 JOptionPane error = new JOptionPane(ErrorDialog.content(ErrorDialog.message(expected)), JOptionPane.ERROR_MESSAGE);
                 render(error, 650, 260, destination.resolve("capacity-error.png"));
+            }
+            try {
+                facade.createEvent(" ", java.time.LocalDate.now().plusDays(5), "Hall", 0, new java.math.BigDecimal("-1"));
+                throw new AssertionError("Expected validation failure");
+            } catch (org.example.validation.ValidationException expected) {
+                JOptionPane error = new JOptionPane(ErrorDialog.content(ErrorDialog.message(expected)), JOptionPane.ERROR_MESSAGE);
+                render(error, 650, 300, destination.resolve("validation-error.png"));
             }
         });
     }

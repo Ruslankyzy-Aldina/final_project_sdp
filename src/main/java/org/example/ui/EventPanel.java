@@ -9,9 +9,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.math.BigDecimal;
 import java.nio.file.*;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
 
@@ -38,6 +36,8 @@ public final class EventPanel extends JPanel {
     private boolean refreshing;
     private boolean exporting;
     private final JButton exportButton = new JButton("Export report…");
+    private final EventListPage eventListPage;
+    private final PackagePage packagePage;
 
     public EventPanel(EventFacade facade) {
         this.facade = facade;
@@ -52,7 +52,7 @@ public final class EventPanel extends JPanel {
         JLabel brand = new JLabel("EVENT DESK");
         brand.setForeground(Color.WHITE); brand.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 22));
         sidebar.add(brand); sidebar.add(Box.createVerticalStrut(36));
-        for (String page : new String[]{"Events", "Participants", "Bookings", "Summary"}) {
+        for (String page : new String[]{"Events", "Packages", "Participants", "Bookings", "Summary"}) {
             JButton nav = new JButton(page);
             nav.setMaximumSize(new Dimension(166, 42)); nav.setAlignmentX(Component.LEFT_ALIGNMENT);
             nav.addActionListener(e -> showPage(page)); sidebar.add(nav); sidebar.add(Box.createVerticalStrut(12));
@@ -68,39 +68,19 @@ public final class EventPanel extends JPanel {
         selector.add(new JLabel("Selected event"), BorderLayout.WEST); selector.add(eventChoice, BorderLayout.CENTER);
         top.add(selector, BorderLayout.CENTER); top.add(eventDetails, BorderLayout.SOUTH);
         workspace.add(top, BorderLayout.NORTH);
-        pages.add(eventsPage(), "Events"); pages.add(participantsPage(), "Participants");
+        eventListPage = new EventListPage(facade, this::refreshChoices, notice::setText);
+        packagePage = new PackagePage(facade, notice::setText);
+        pages.add(eventListPage, "Events"); pages.add(packagePage, "Packages");
+        pages.add(participantsPage(), "Participants");
         pages.add(bookingsPage(), "Bookings"); pages.add(summaryPage(), "Summary");
         workspace.add(pages, BorderLayout.CENTER);
         notice.setForeground(new Color(67, 91, 114)); workspace.add(notice, BorderLayout.SOUTH);
         add(workspace, BorderLayout.CENTER);
-        eventChoice.addActionListener(e -> { if (!refreshing) refreshDetails(); });
+        eventChoice.addActionListener(e -> { if (!refreshing) { eventListPage.reload(selectedId()); refreshDetails(); } });
         refreshChoices(null);
     }
 
     public void showPage(String page) { refreshDetails(); cards.show(pages, page); }
-
-    private JPanel eventsPage() {
-        JPanel page = page("Create an event");
-        JTextField name = new JTextField();
-        JTextField date = new JTextField(LocalDate.now().plusDays(7).toString());
-        JTextField venue = new JTextField();
-        JTextField capacity = new JTextField("20");
-        JTextField price = new JTextField("1000.00");
-        JPanel fields = form("Event name", name, "Date (YYYY-MM-DD)", date, "Venue", venue,
-                "Capacity", capacity, "Ticket price (KZT)", price);
-        JButton create = new JButton("Create event");
-        create.addActionListener(e -> perform(() -> {
-            Event created = facade.createEvent(name.getText(), LocalDate.parse(date.getText().trim()), venue.getText(),
-                    Integer.parseInt(capacity.getText().trim()), new BigDecimal(price.getText().trim()));
-            refreshChoices(created.id()); name.setText(""); venue.setText("");
-            notice.setText("Event created: " + created.name());
-        }));
-        fields.add(new JLabel()); fields.add(create);
-        JPanel body = new JPanel(new BorderLayout()); body.add(fields, BorderLayout.NORTH);
-        page.add(body, BorderLayout.CENTER);
-        page.add(new JLabel("Use the event selector above to switch between events."), BorderLayout.SOUTH);
-        return page;
-    }
 
     private JPanel participantsPage() {
         JPanel page = page("Participants"); page.add(scroll(table(participantModel)), BorderLayout.CENTER);
@@ -193,12 +173,13 @@ public final class EventPanel extends JPanel {
         participantChoice.removeAllItems(); participantModel.setRowCount(0);
         for (Participant p : facade.getParticipants()) { participantChoice.addItem(p); participantModel.addRow(new Object[]{p.name(), p.id()}); }
         if (old != null) participantChoice.setSelectedItem(old);
-        refreshing = false; refreshDetails();
+        refreshing = false; eventListPage.reload(selectedId()); refreshDetails();
     }
 
     private void refreshDetails() {
         bookingModel.setRowCount(0); summaryModel.setRowCount(0);
         Event event = (Event) eventChoice.getSelectedItem();
+        packagePage.setEvent(event);
         if (event == null) {
             currentBookings = List.of(); eventDetails.setText("Create your first event to get started.");
             summaryHeading.setText("No event selected"); total.setText("Total: 0.00 KZT"); exportButton.setEnabled(false); return;
@@ -231,11 +212,6 @@ public final class EventPanel extends JPanel {
     private static JPanel page(String title) {
         JPanel panel = new JPanel(new BorderLayout(0, 20)); JLabel label = new JLabel(title);
         label.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 22)); panel.add(label, BorderLayout.NORTH); return panel;
-    }
-    private static JPanel form(Object... fields) {
-        JPanel grid = new JPanel(new GridLayout(0, 2, 18, 20));
-        for (Object field : fields) grid.add(field instanceof String label ? new JLabel(label) : (Component) field);
-        grid.setPreferredSize(new Dimension(600, 320)); return grid;
     }
     private static DefaultTableModel tableModel(String... names) {
         return new DefaultTableModel(names, 0) { @Override public boolean isCellEditable(int row, int column) { return false; } };
