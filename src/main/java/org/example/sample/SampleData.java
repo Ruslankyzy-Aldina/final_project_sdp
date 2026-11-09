@@ -11,11 +11,13 @@ public final class SampleData {
     /** A fresh facade prevents reseeding or overwriting an existing session. */
     public static EventFacade createDemo() {
         EventFacade facade = new EventFacade();
-        Event conference = facade.createEvent("Design Patterns Conference", LocalDate.of(2026, 12, 12),
+        // Relative dates keep the demo valid: events in the past are rejected by EventBuilder.
+        LocalDate today = LocalDate.now();
+        Event conference = facade.createEvent("Design Patterns Conference", today.plusDays(30),
                 "Astana · Main Hall", 12, new BigDecimal("5000"));
-        Event workshop = facade.createEvent("Java Workshop", LocalDate.of(2026, 12, 15),
+        Event workshop = facade.createEvent("Java Workshop", today.plusDays(33),
                 "Lab 204", 3, new BigDecimal("2000"));
-        facade.createEvent("Community Meetup", LocalDate.of(2026, 12, 20), "Open Space", 20, BigDecimal.ZERO);
+        facade.createEvent("Community Meetup", today.plusDays(38), "Open Space", 20, BigDecimal.ZERO);
         Participant aida = facade.addParticipant("Aida");
         Participant dana = facade.addParticipant("Dana");
         Participant team = facade.addParticipant("Student team");

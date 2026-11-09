@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class EventFacadeTest {
     @TempDir Path directory;
     private final EventFacade facade = new EventFacade();
-    private final Event event = facade.createEvent("Java <&> \"Клуб\"", LocalDate.of(2026, 12, 1), "Hall", 5, new BigDecimal("100"));
+    private final Event event = facade.createEvent("Java <&> \"Клуб\"", LocalDate.now().plusDays(20), "Hall", 5, new BigDecimal("100"));
     private final Participant participant = facade.addParticipant("Айда & Dana");
 
     @ParameterizedTest @ValueSource(strings = {"txt", "json", "html"})
