@@ -1,5 +1,6 @@
 package org.example.pricing;
 
+import org.example.validation.ValidationException;
 import org.example.booking.Booking;
 
 import java.math.BigDecimal;
@@ -14,7 +15,7 @@ public final class GroupDiscountPricing implements PricingStrategy {
     public BigDecimal calculate(Booking booking) {
         Objects.requireNonNull(booking, "booking");
         if (booking.seatCount() < MIN_GROUP_SIZE) {
-            throw new IllegalArgumentException("Group discount requires at least five seats");
+            throw new ValidationException("Group discount requires at least five seats");
         }
         return booking.basePrice().multiply(RATE).setScale(2, RoundingMode.HALF_UP);
     }

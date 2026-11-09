@@ -1,5 +1,6 @@
 package org.example.service;
 
+import org.example.validation.ValidationException;
 import org.example.booking.*;
 import org.example.model.*;
 import org.example.pricing.*;
@@ -12,7 +13,7 @@ public final class BookingService {
     public BookingService(InMemoryEventStore store) { this.store = store; }
 
     public BookingDetails addBooking(String eventId, String participantId, int seats, PricingPlan plan) {
-        if (plan == null) throw new IllegalArgumentException("Pricing plan is required");
+        if (plan == null) throw new ValidationException("Pricing plan is required");
         synchronized (store) {
             Event event = store.event(eventId);
             Participant participant = store.participant(participantId);
@@ -32,7 +33,7 @@ public final class BookingService {
     }
 
     public BookingDetails changeStatus(String bookingId, BookingStatus status) {
-        if (status == null) throw new IllegalArgumentException("Booking status is required");
+        if (status == null) throw new ValidationException("Booking status is required");
         synchronized (store) {
             BookingDetails old = store.booking(bookingId);
             if (!old.active() && status != BookingStatus.CANCELLED)
@@ -48,7 +49,7 @@ public final class BookingService {
                 .mapToLong(b -> b.booking().seatCount()).sum();
         long available = event.capacity() - occupied;
         if (additionalSeats > available)
-            throw new IllegalArgumentException("Not enough seats: requested " + additionalSeats
+            throw new ValidationException("Not enough seats: requested " + additionalSeats
                     + ", available " + available + ". Booking was not changed.");
     }
 }
