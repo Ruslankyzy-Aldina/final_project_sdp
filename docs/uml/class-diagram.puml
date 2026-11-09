@@ -1,0 +1,106 @@
+@startuml event-desk-patterns
+title Event Desk - design pattern participants
+skinparam classAttributeIconSize 0
+left to right direction
+
+package "Builder" {
+  class Event {
+    - id : String
+    - name : String
+    - date : LocalDate
+    - venue : String
+    - capacity : int
+    - unitPrice : BigDecimal
+    ~ Event(builder : EventBuilder)
+    + {static} builder() : EventBuilder
+    + toBuilder() : EventBuilder
+  }
+  class EventBuilder {
+    + name(String) : EventBuilder
+    + date(LocalDate) : EventBuilder
+    + location(String) : EventBuilder
+    + capacity(int) : EventBuilder
+    + price(BigDecimal) : EventBuilder
+    + build() : Event
+  }
+  class ValidationException {
+    + getErrors() : List<String>
+  }
+  EventBuilder ..> Event : builds
+  EventBuilder ..> ValidationException : throws
+}
+
+package "Decorator" {
+  interface ServiceOption {
+    + getCost() : BigDecimal
+    + getDescription() : String
+  }
+  class BasePackage
+  abstract class OptionDecorator {
+    - wrapped : ServiceOption
+    # {abstract} extraCost() : BigDecimal
+    # {abstract} extraDescription() : String
+  }
+  class CateringDecorator { - guests : int }
+  class PhotographerDecorator
+  class DecorDecorator
+  enum ServiceExtra {
+    CATERING
+    PHOTOGRAPHER
+    DECOR
+    + decorate(ServiceOption, int) : ServiceOption
+  }
+  class ServicePackage <<record>> {
+    + {static} configure(Event, Set<ServiceExtra>) : ServicePackage
+    + cost() : BigDecimal
+  }
+  ServiceOption <|.. BasePackage
+  ServiceOption <|.. OptionDecorator
+  OptionDecorator o--> ServiceOption : wraps
+  OptionDecorator <|-- CateringDecorator
+  OptionDecorator <|-- PhotographerDecorator
+  OptionDecorator <|-- DecorDecorator
+  ServiceExtra ..> OptionDecorator : creates
+  ServicePackage --> ServiceOption
+}
+
+package "Facade" {
+  class EventFacade
+  class EventService
+  class BookingService
+  class InMemoryEventStore
+  EventFacade --> EventService
+  EventFacade --> BookingService
+  EventService --> InMemoryEventStore
+  BookingService --> InMemoryEventStore
+}
+
+package "Strategy" {
+  interface PricingStrategy { + calculate(Booking) : BigDecimal }
+  class PriceCalculator
+  PricingStrategy <|.. RegularPricing
+  PricingStrategy <|.. StudentDiscountPricing
+  PricingStrategy <|.. GroupDiscountPricing
+  PriceCalculator o--> PricingStrategy
+}
+
+package "Factory Method" {
+  abstract class ExporterFactory {
+    + {abstract} createExporter(String) : ReportExporter
+    + export(Summary, Path, String)
+  }
+  interface ReportExporter
+  ExporterFactory <|-- DefaultExporterFactory
+  ReportExporter <|.. TxtExporter
+  ReportExporter <|.. JsonExporter
+  ReportExporter <|.. HtmlExporter
+  DefaultExporterFactory ..> ReportExporter : creates
+}
+
+EventService ..> EventBuilder : directs
+EventService ..> ServicePackage
+BookingService ..> PriceCalculator
+EventFacade --> ExporterFactory
+EventListPage --> EventFacade
+PackagePage --> EventFacade
+@enduml
