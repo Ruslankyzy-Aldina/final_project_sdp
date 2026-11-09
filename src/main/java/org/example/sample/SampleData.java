@@ -3,8 +3,10 @@ package org.example.sample;
 import org.example.booking.BookingStatus;
 import org.example.facade.EventFacade;
 import org.example.model.*;
+import org.example.option.ServiceExtra;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.EnumSet;
 
 public final class SampleData {
     private SampleData() { }
@@ -26,6 +28,7 @@ public final class SampleData {
         facade.addBooking(conference.id(), dana.id(), 1, PricingPlan.STUDENT);
         facade.addBooking(conference.id(), team.id(), 5, PricingPlan.GROUP);
         facade.addBooking(workshop.id(), aida.id(), 3, PricingPlan.REGULAR);
+        facade.configurePackage(conference.id(), EnumSet.of(ServiceExtra.CATERING, ServiceExtra.PHOTOGRAPHER));
         return facade;
     }
 }
